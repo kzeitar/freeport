@@ -10,8 +10,28 @@ import (
 	gopsnet "github.com/shirou/gopsutil/v4/net"
 )
 
-// PIDsByPort returns the PIDs of processes using the given TCP port.
-// It checks both listening and established connections, supporting both IPv4 and IPv6.
+// PIDsByPort returns the process IDs (PIDs) of all processes using the given TCP port number.
+//
+// It scans both listening and established connections, supporting IPv4 and IPv6 addresses.
+// The function checks both local and remote endpoints of each connection, ensuring that
+// any process bound to or connected on the specified port is detected.
+//
+// Parameters:
+//   - port: The TCP port number to search for (typically 1-65535)
+//
+// Returns:
+//   - []int32: A slice of PIDs using the specified port (deduplicated, no specific order)
+//   - error: An error if the system's network connection table cannot be accessed
+//
+// Example:
+//
+//	pids, err := port.PIDsByPort(8080)
+//	if err != nil {
+//	    log.Fatalf("Failed to lookup PIDs: %v", err)
+//	}
+//	for _, pid := range pids {
+//	    fmt.Printf("Process %d is using port 8080\n", pid)
+//	}
 func PIDsByPort(port int) ([]int32, error) {
 	conns, err := gopsnet.Connections("all")
 	if err != nil {
@@ -43,9 +63,32 @@ func PIDsByPort(port int) ([]int32, error) {
 	return result, nil
 }
 
-// KillPID terminates the process with the given PID.
-// On Unix, it sends SIGTERM first and falls back to SIGKILL if needed.
-// On Windows, it calls Process.Kill() directly.
+// KillPID terminates the process with the given PID in a platform-appropriate manner.
+//
+// On Unix-like systems (Linux, macOS, *BSD), it attempts graceful termination first
+// by sending SIGTERM, waiting up to 3 seconds for the process to exit cleanly.
+// If the process doesn't terminate within the timeout, it sends SIGKILL to force termination.
+// If SIGTERM cannot be sent (e.g., due to permissions), it falls back to SIGKILL immediately.
+//
+// On Windows, it calls Process.Kill() directly for immediate termination.
+//
+// Parameters:
+//   - pid: The process ID to terminate
+//
+// Returns:
+//   - error: An error if the process cannot be found or termination fails
+//
+// Permission requirements:
+//   - Unix: You must own the process or have root/sudo privileges to kill it
+//   - Windows: You must have sufficient privileges (typically requires Administrator for system processes)
+//
+// Example:
+//
+//	pid := int32(1234)
+//	if err := port.KillPID(pid); err != nil {
+//	    log.Fatalf("Failed to kill process %d: %v", pid, err)
+//	}
+//	fmt.Printf("Successfully killed process %d\n", pid)
 func KillPID(pid int32) error {
 	proc, err := os.FindProcess(int(pid))
 	if err != nil {
