@@ -47,8 +47,21 @@ func TestPIDsByPort_returnsCurrentPID(t *testing.T) {
 }
 
 func TestKillPID_onChildProcess(t *testing.T) {
+	// Build the helper binary (testdata is at repository root)
+	helperPath := "testdata/helper"
+	listenerPath := "../../testdata/listener.go"
+	buildCmd := exec.Command("go", "build", "-o", helperPath, listenerPath)
+	if err := buildCmd.Run(); err != nil {
+		t.Fatalf("Failed to build helper binary: %v", err)
+	}
+
+	// Ensure the helper binary is cleaned up after the test
+	t.Cleanup(func() {
+		os.Remove(helperPath)
+	})
+
 	// Start the helper process
-	cmd := exec.Command("go", "run", "testdata/listener.go", "-port", "0")
+	cmd := exec.Command("./"+helperPath, "-port", "0")
 	cmd.Stdout = nil // Discard output
 	cmd.Stderr = nil // Discard errors
 
@@ -57,6 +70,26 @@ func TestKillPID_onChildProcess(t *testing.T) {
 	}
 
 	childPID := int32(cmd.Process.Pid)
+
+	// Ensure the child process is cleaned up if the test fails
+	t.Cleanup(func() {
+		// Try to kill the process if it's still running
+		proc, err := os.FindProcess(int(childPID))
+		if err == nil {
+			// On Unix, signal 0 checks if process exists without killing it
+			if runtime.GOOS != "windows" {
+				if err := proc.Signal(syscall.Signal(0)); err == nil {
+					// Process is still running, kill it
+					_ = proc.Kill()
+				}
+			} else {
+				// On Windows, just try to kill it
+				_ = proc.Kill()
+			}
+		}
+		// Wait for the process to exit (ignore errors)
+		_ = cmd.Wait()
+	})
 
 	// Give the process time to start and begin listening
 	time.Sleep(500 * time.Millisecond)
