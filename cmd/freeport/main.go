@@ -45,7 +45,10 @@ func main() {
 	// Pre-process os.Args to allow flags anywhere
 	// Move all flags to the front, keep positional args at the end
 	reorderedArgs := reorderArgs(os.Args[1:])
-	flag.CommandLine.Parse(reorderedArgs)
+	if err := flag.CommandLine.Parse(reorderedArgs); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: failed to parse flags: %v\n", err)
+		os.Exit(exitInvalidArgs)
+	}
 
 	// Handle version flag
 	if versionFlag {

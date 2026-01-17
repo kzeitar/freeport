@@ -16,7 +16,7 @@ func TestPIDsByPort_returnsCurrentPID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create listener: %v", err)
 	}
-	defer listener.Close()
+	defer func() { _ = listener.Close() }()
 
 	// Get the actual port number
 	addr := listener.Addr().(*net.TCPAddr)
@@ -57,7 +57,9 @@ func TestKillPID_onChildProcess(t *testing.T) {
 
 	// Ensure the helper binary is cleaned up after the test
 	t.Cleanup(func() {
-		os.Remove(helperPath)
+		if err := os.Remove(helperPath); err != nil {
+			t.Logf("Failed to remove helper binary: %v", err)
+		}
 	})
 
 	// Start the helper process
