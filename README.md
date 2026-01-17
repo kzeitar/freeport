@@ -78,6 +78,7 @@ freeport [options] <port>
 | `--list` | | List processes using the specified port (no killing) |
 | `--dry-run` | | Show what would be killed without actually killing |
 | `--verbose` | `-v` | Enable verbose logging |
+| `--version` | `-V` | Print version information |
 | `--help` | `-h` | Show help message |
 
 ### Arguments
@@ -119,6 +120,13 @@ $ freeport --list 5432
 Processes using port 5432:
   PID 1234 (postgres)
   PID 5678 (postgres)
+```
+
+### Show Version
+
+```bash
+$ freeport --version
+freeport 0.1.0
 ```
 
 ### Dry Run

@@ -12,6 +12,9 @@ import (
 	"github.com/shirou/gopsutil/v4/process"
 )
 
+// Version is set by the build process via ldflags
+var version = "dev"
+
 const (
 	exitSuccess     = 0
 	exitInvalidArgs = 2
@@ -24,6 +27,7 @@ var (
 	listFlag    bool
 	dryRunFlag  bool
 	verboseFlag bool
+	versionFlag bool
 )
 
 func main() {
@@ -33,6 +37,8 @@ func main() {
 	flag.BoolVar(&dryRunFlag, "dry-run", false, "show what would be killed but do not kill")
 	flag.BoolVar(&verboseFlag, "verbose", false, "enable verbose logging")
 	flag.BoolVar(&verboseFlag, "v", false, "enable verbose logging (shorthand)")
+	flag.BoolVar(&versionFlag, "version", false, "print version information")
+	flag.BoolVar(&versionFlag, "V", false, "print version information (shorthand)")
 
 	flag.Usage = usage
 
@@ -40,6 +46,12 @@ func main() {
 	// Move all flags to the front, keep positional args at the end
 	reorderedArgs := reorderArgs(os.Args[1:])
 	flag.CommandLine.Parse(reorderedArgs)
+
+	// Handle version flag
+	if versionFlag {
+		fmt.Printf("freeport %s\n", version)
+		os.Exit(exitSuccess)
+	}
 
 	args := flag.Args()
 	portNum, err := parsePort(args)
@@ -101,7 +113,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  freeport 8080              # Kill process on port 8080 (with prompt)\n")
 	fmt.Fprintf(os.Stderr, "  freeport -f 8080           # Kill process on port 8080 without prompt\n")
 	fmt.Fprintf(os.Stderr, "  freeport --list 8080       # Show PIDs using port 8080\n")
-	fmt.Fprintf(os.Stderr, "  freeport --list            # List all listening ports with PIDs\n")
+	fmt.Fprintf(os.Stderr, "  freeport --version         # Show version information\n")
 	fmt.Fprintf(os.Stderr, "  freeport --dry-run 8080    # Show what would be killed\n")
 }
 
@@ -147,7 +159,9 @@ func listPIDsForPort(portNum int) {
 }
 
 func listAllListeningPorts() {
-	fmt.Println("Listing all listening ports with PIDs is not yet implemented.")
+	fmt.Fprintln(os.Stderr, "Error: listing all listening ports is not supported.")
+	fmt.Fprintln(os.Stderr, "Please specify a port number: freeport --list <port>")
+	os.Exit(exitInvalidArgs)
 }
 
 func handlePID(pid int32, portNum int) error {

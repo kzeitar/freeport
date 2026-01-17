@@ -39,19 +39,14 @@ func PIDsByPort(port int) ([]int32, error) {
 	}
 
 	pidMap := make(map[int32]struct{})
+	targetPort := uint32(port)
+
 	for _, conn := range conns {
 		// Check for TCP connections (SOCK_STREAM = 1)
-		if conn.Type == syscall.SOCK_STREAM {
+		if conn.Type == syscall.SOCK_STREAM && conn.Pid != 0 {
 			// Check both local and remote addresses
-			if conn.Laddr.Port == uint32(port) {
-				if conn.Pid != 0 {
-					pidMap[conn.Pid] = struct{}{}
-				}
-			}
-			if conn.Raddr.Port == uint32(port) {
-				if conn.Pid != 0 {
-					pidMap[conn.Pid] = struct{}{}
-				}
+			if conn.Laddr.Port == targetPort || conn.Raddr.Port == targetPort {
+				pidMap[conn.Pid] = struct{}{}
 			}
 		}
 	}
@@ -101,7 +96,7 @@ func KillPID(pid int32) error {
 
 	// Unix: try SIGTERM first, then SIGKILL
 	if err := proc.Signal(syscall.SIGTERM); err != nil {
-		// If SIGTERM fails, try SIGKILL immediately
+		// If SIGTERM fails (e.g., permissions), try SIGKILL immediately
 		return proc.Signal(syscall.SIGKILL)
 	}
 
@@ -113,10 +108,19 @@ func KillPID(pid int32) error {
 	}()
 
 	select {
-	case <-done:
-		return nil
+	case err := <-done:
+		// Process exited; return any wait error
+		return err
 	case <-time.After(3 * time.Second):
-		// Force kill if not terminated
-		return proc.Signal(syscall.SIGKILL)
+		// Force kill if not terminated within timeout
+		if err := proc.Signal(syscall.SIGKILL); err != nil {
+			// SIGKILL also failed - process may have exited just now
+			// Try one more wait to see if it's gone
+			_, err := proc.Wait()
+			return err
+		}
+		// Successfully sent SIGKILL, now wait for process to exit
+		_, err := proc.Wait()
+		return err
 	}
 }
