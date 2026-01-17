@@ -1,0 +1,42 @@
+{
+  "name": "freeport-cli",
+  "version": "0.1.0",
+  "description": "Command-line tool to free TCP ports by killing processes using them",
+  "main": "index.js",
+  "bin": {
+    "freeport": "bin/freeport.js"
+  },
+  "scripts": {
+    "install": "node install.js",
+    "postinstall": "node install.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kzeitar/freeport.git"
+  },
+  "keywords": [
+    "cli",
+    "port",
+    "kill",
+    "process",
+    "tcp",
+    "development",
+    "devtools",
+    "terminal"
+  ],
+  "author": "Khaled Zeitar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kzeitar/freeport/issues"
+  },
+  "homepage": "https://github.com/kzeitar/freeport#readme",
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ]
+}

@@ -14,7 +14,9 @@
 
 ## Installation
 
-### From Source
+`freeport` can be installed via multiple methods. Choose the one that works best for you:
+
+### Go Toolchain (Recommended)
 
 ```bash
 go install github.com/kzeitar/freeport@latest
@@ -27,9 +29,24 @@ This will install the `freeport` binary to `$GOPATH/bin` (or `$HOME/go/bin` by d
 export PATH=$PATH:$(go env GOPATH)/bin
 ```
 
-### From Binary Releases
+### Homebrew
 
-Download the appropriate binary for your platform from the [releases page](https://github.com/kzeitar/freeport/releases) and place it in your `$PATH`.
+```bash
+brew tap kzeitar/freeport
+brew install freeport
+```
+
+### npm
+
+```bash
+npm install -g freeport-cli
+```
+
+### Binary Releases
+
+Download the appropriate binary for your platform from the [releases page](https://github.com/kzeitar/freeport/releases).
+
+**For more detailed installation instructions, see [INSTALL.md](INSTALL.md).**
 
 ## Quick Start
 
@@ -148,6 +165,7 @@ sudo freeport -f 80  # Kill process on port 80 (typically requires root)
 
 ## Documentation
 
+- [Installation Guide](INSTALL.md) - Detailed installation instructions for all platforms
 - [Usage Guide](docs/usage.md) - Comprehensive usage documentation with troubleshooting
 - [Go Package Documentation](pkg/port/) - API documentation for using `freeport` as a Go library
 
