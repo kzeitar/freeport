@@ -5,8 +5,6 @@
 ## Table of Contents
 
 - [Go Toolchain (Recommended)](#go-toolchain-recommended)
-- [Homebrew](#homebrew)
-- [npm](#npm)
 - [Manual Binary Installation](#manual-binary-installation)
 - [Building from Source](#building-from-source)
 
@@ -31,64 +29,6 @@ export PATH=$PATH:$(go env GOPATH)/bin
 
 ```bash
 freeport --help
-```
-
----
-
-## Homebrew
-
-### Option 1: Install via Tap
-
-```bash
-# Add the tap
-brew tap kzeitar/freeport
-
-# Install
-brew install freeport
-```
-
-### Option 2: Install from Local Formula
-
-```bash
-brew install --formula https://raw.githubusercontent.com/kzeitar/freeport/main/.github/homebrew/freeport.rb
-```
-
-**Update:**
-
-```bash
-brew upgrade freeport
-```
-
-**Uninstall:**
-
-```bash
-brew uninstall freeport
-```
-
----
-
-## npm
-
-**Note:** This method downloads pre-compiled binaries and does not require Node.js for runtime.
-
-```bash
-# Install globally
-npm install -g freeport-cli
-
-# Or using yarn
-yarn global add freeport-cli
-```
-
-**Update:**
-
-```bash
-npm update -g freeport-cli
-```
-
-**Uninstall:**
-
-```bash
-npm uninstall -g freeport-cli
 ```
 
 ---
@@ -214,14 +154,6 @@ sudo freeport 3000
 
 # Windows (run as Administrator)
 # Right-click Command Prompt/PowerShell -> Run as Administrator
-```
-
-### npm installation fails
-
-If the automatic binary download fails, install via Go instead:
-
-```bash
-go install github.com/kzeitar/freeport@latest
 ```
 
 ---

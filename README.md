@@ -29,19 +29,6 @@ This will install the `freeport` binary to `$GOPATH/bin` (or `$HOME/go/bin` by d
 export PATH=$PATH:$(go env GOPATH)/bin
 ```
 
-### Homebrew
-
-```bash
-brew tap kzeitar/freeport
-brew install freeport
-```
-
-### npm
-
-```bash
-npm install -g freeport-cli
-```
-
 ### Binary Releases
 
 Download the appropriate binary for your platform from the [releases page](https://github.com/kzeitar/freeport/releases).
